@@ -2,9 +2,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { matches, matchParticipants } from "@/db/schema";
+import { matches, matchParticipants, users, profiles } from "@/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { sendJoinedEmail, sendLeftEmail, sendJoinConfirmationEmail } from "@/lib/email";
 
 export async function joinMatch(matchId: number) {
   const user = await requireAuth();
@@ -27,6 +28,35 @@ export async function joinMatch(matchId: number) {
   if (alreadyJoined) return { error: "Already joined." };
 
   await db.insert(matchParticipants).values({ matchId, userId: user.id });
+
+  // Send emails (non-blocking)
+  try {
+    const [creator] = await db.select().from(users).where(eq(users.id, match.createdById)).limit(1);
+    const [creatorProfile] = await db.select().from(profiles).where(eq(profiles.userId, match.createdById)).limit(1);
+    const joinerName = user.profile?.displayName ?? user.email;
+    const creatorName = creatorProfile?.displayName ?? creator?.email ?? "there";
+
+    if (creator && creator.id !== user.id) {
+      await sendJoinedEmail({
+        creatorEmail: creator.email,
+        creatorName,
+        joinerName,
+        matchTitle: match.title,
+        matchId,
+      });
+    }
+    await sendJoinConfirmationEmail({
+      userEmail: user.email,
+      userName: joinerName,
+      matchTitle: match.title,
+      matchLocation: match.location,
+      matchDate: match.scheduledAt,
+      matchId,
+    });
+  } catch (e) {
+    console.error("Email failed:", e);
+  }
+
   revalidatePath(`/matches/${matchId}`);
 }
 
@@ -41,6 +71,27 @@ export async function leaveMatch(matchId: number) {
   await db.delete(matchParticipants).where(
     and(eq(matchParticipants.matchId, matchId), eq(matchParticipants.userId, user.id))
   );
+
+  // Send email to creator (non-blocking)
+  try {
+    const [creator] = await db.select().from(users).where(eq(users.id, match.createdById)).limit(1);
+    const [creatorProfile] = await db.select().from(profiles).where(eq(profiles.userId, match.createdById)).limit(1);
+    const leaverName = user.profile?.displayName ?? user.email;
+    const creatorName = creatorProfile?.displayName ?? creator?.email ?? "there";
+
+    if (creator) {
+      await sendLeftEmail({
+        creatorEmail: creator.email,
+        creatorName,
+        leaverName,
+        matchTitle: match.title,
+        matchId,
+      });
+    }
+  } catch (e) {
+    console.error("Email failed:", e);
+  }
+
   revalidatePath(`/matches/${matchId}`);
 }
 
