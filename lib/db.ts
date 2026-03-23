@@ -1,11 +1,10 @@
 import * as schema from "@/db/schema";
 
-// Use Turso in production, local SQLite in development
 function createDb() {
   if (process.env.TURSO_DATABASE_URL && process.env.TURSO_AUTH_TOKEN) {
-    // Production: Turso (HTTP-based, no native binary needed)
+    // Production: Turso via HTTP only (no native binary needed)
     const { drizzle } = require("drizzle-orm/libsql");
-    const { createClient } = require("@libsql/client");
+    const { createClient } = require("@libsql/client/http");
     const client = createClient({
       url: process.env.TURSO_DATABASE_URL,
       authToken: process.env.TURSO_AUTH_TOKEN,
