@@ -1,6 +1,10 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY ?? "no-key");
+
+function canSendEmail() {
+  return !!process.env.RESEND_API_KEY;
+}
 
 // Change this to your domain once verified e.g. notifications@matchfinder.app
 const FROM = "MatchFinder <onboarding@resend.dev>";
@@ -18,6 +22,7 @@ export async function sendJoinedEmail({
   matchTitle: string;
   matchId: number;
 }) {
+  if (!canSendEmail()) return;
   await resend.emails.send({
     from: FROM,
     to: creatorEmail,
@@ -50,6 +55,7 @@ export async function sendLeftEmail({
   matchTitle: string;
   matchId: number;
 }) {
+  if (!canSendEmail()) return;
   await resend.emails.send({
     from: FROM,
     to: creatorEmail,
@@ -84,6 +90,7 @@ export async function sendJoinConfirmationEmail({
   matchDate: string;
   matchId: number;
 }) {
+  if (!canSendEmail()) return;
   await resend.emails.send({
     from: FROM,
     to: userEmail,
