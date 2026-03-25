@@ -1,5 +1,6 @@
 import { getMatches } from "@/lib/matches";
 import MatchCard from "@/components/MatchCard";
+import NearMeButton from "@/components/NearMeButton";
 import Link from "next/link";
 
 const SPORTS = ["soccer", "basketball", "padel", "tennis", "running", "other"];
@@ -26,13 +27,16 @@ export default async function MatchesPage({
       </div>
 
       {/* Filter bar */}
-      <form method="GET" className="bg-white rounded-xl shadow p-4 flex flex-wrap gap-3">
-        <input
-          name="city"
-          defaultValue={params.city}
-          placeholder="Filter by city"
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-w-32"
-        />
+      <form method="GET" className="bg-white rounded-xl shadow p-4 flex flex-wrap gap-3 items-end">
+        <div className="flex gap-2 flex-1 min-w-32">
+          <input
+            name="city"
+            defaultValue={params.city}
+            placeholder="Filter by city"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
+          />
+          <NearMeButton currentCity={params.city} />
+        </div>
         <select
           name="sport"
           defaultValue={params.sport ?? ""}

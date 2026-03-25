@@ -5,6 +5,7 @@ import { joinMatch, leaveMatch, cancelMatch } from "./actions";
 import { notFound } from "next/navigation";
 import { eq, sql } from "drizzle-orm";
 import Link from "next/link";
+import MatchChat from "@/components/MatchChat";
 
 const SPORT_COLORS: Record<string, string> = {
   soccer: "bg-green-100 text-green-800",
@@ -114,6 +115,8 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ id
           </p>
         )}
       </div>
+
+      <MatchChat matchId={matchId} currentUserId={currentUser?.id ?? null} />
 
       <div className="bg-white rounded-xl shadow p-6">
         <h2 className="font-semibold text-gray-800 mb-3">Participants ({participantRows.length})</h2>

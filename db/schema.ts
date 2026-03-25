@@ -41,8 +41,17 @@ export const matchParticipants = sqliteTable("match_participants", {
   joinedAt: text("joined_at").notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
 }, (t) => [unique().on(t.matchId, t.userId)]);
 
+export const matchMessages = sqliteTable("match_messages", {
+  id:        integer("id").primaryKey({ autoIncrement: true }),
+  matchId:   integer("match_id").notNull().references(() => matches.id, { onDelete: "cascade" }),
+  userId:    integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  message:   text("message").notNull(),
+  createdAt: text("created_at").notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+});
+
 // TypeScript types inferred from schema
 export type User = typeof users.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
 export type Match = typeof matches.$inferSelect;
 export type MatchParticipant = typeof matchParticipants.$inferSelect;
+export type MatchMessage = typeof matchMessages.$inferSelect;

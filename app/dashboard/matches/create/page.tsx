@@ -5,8 +5,18 @@ import { createMatch } from "../actions";
 const SPORTS = ["soccer", "basketball", "padel", "tennis", "running", "other"];
 const SKILLS = ["beginner", "intermediate", "advanced"];
 
+const VENUES: Record<string, string[]> = {
+  soccer: ["Local football pitch", "5-a-side arena", "Community sports park", "School field", "Astroturf cage"],
+  basketball: ["Community basketball court", "Indoor sports hall", "School gym", "Outdoor court", "Recreation center"],
+  padel: ["Padel club", "Sports complex padel", "Indoor padel center", "Tennis & padel club"],
+  tennis: ["Public tennis courts", "Tennis club", "Leisure center courts", "Park courts"],
+  running: ["Local park", "Riverside path", "City center route", "Trail run", "Athletics track"],
+  other: ["Community sports center", "Local park", "Recreation ground", "Sports hall"],
+};
+
 export default function CreateMatchPage() {
   const [error, setError] = useState("");
+  const [sport, setSport] = useState("soccer");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,7 +36,13 @@ export default function CreateMatchPage() {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Sport *</label>
-          <select name="sport" required className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select
+            name="sport"
+            required
+            value={sport}
+            onChange={(e) => setSport(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
             {SPORTS.map((s) => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
           </select>
         </div>
@@ -45,8 +61,20 @@ export default function CreateMatchPage() {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Location / Address *</label>
-          <input name="location" required className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. Central Park, Field 3" />
+          <label className="block text-sm font-medium text-gray-700 mb-1">Location / Venue *</label>
+          <input
+            name="location"
+            required
+            list="venue-suggestions"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="e.g. Central Park, Field 3"
+          />
+          <datalist id="venue-suggestions">
+            {(VENUES[sport] ?? VENUES.other).map((v) => (
+              <option key={v} value={v} />
+            ))}
+          </datalist>
+          <p className="text-xs text-gray-400 mt-1">Suggestions shown based on sport — type your own or pick one</p>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
