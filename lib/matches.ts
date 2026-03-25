@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { matches, matchParticipants, users, profiles } from "@/db/schema";
-import { eq, gt, and, like, sql } from "drizzle-orm";
+import { eq, gt, and, like, sql, lt } from "drizzle-orm";
 
 export interface MatchFilters {
   city?: string;
@@ -29,6 +29,32 @@ export async function getMatches(filters: MatchFilters = {}) {
     .orderBy(matches.scheduledAt);
 
   return enrichMatches(rows);
+}
+
+export async function getUserUpcomingMatches(userId: number) {
+  const now = new Date().toISOString();
+  const in48h = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+
+  const joined = await db
+    .select({ matchId: matchParticipants.matchId })
+    .from(matchParticipants)
+    .where(eq(matchParticipants.userId, userId));
+
+  if (joined.length === 0) return [];
+
+  const ids = joined.map((j) => j.matchId);
+  return db
+    .select()
+    .from(matches)
+    .where(
+      and(
+        eq(matches.status, "open"),
+        gt(matches.scheduledAt, now),
+        lt(matches.scheduledAt, in48h),
+        sql`${matches.id} IN (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})`
+      )
+    )
+    .orderBy(matches.scheduledAt);
 }
 
 // Attach createdBy + participants to each match

@@ -1,22 +1,24 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { createMatch } from "../actions";
+import VenueFinder from "@/components/VenueFinder";
 
 const SPORTS = ["soccer", "basketball", "padel", "tennis", "running", "other"];
 const SKILLS = ["beginner", "intermediate", "advanced"];
 
 const VENUES: Record<string, string[]> = {
-  soccer: ["Local football pitch", "5-a-side arena", "Community sports park", "School field", "Astroturf cage"],
-  basketball: ["Community basketball court", "Indoor sports hall", "School gym", "Outdoor court", "Recreation center"],
-  padel: ["Padel club", "Sports complex padel", "Indoor padel center", "Tennis & padel club"],
-  tennis: ["Public tennis courts", "Tennis club", "Leisure center courts", "Park courts"],
-  running: ["Local park", "Riverside path", "City center route", "Trail run", "Athletics track"],
-  other: ["Community sports center", "Local park", "Recreation ground", "Sports hall"],
+  soccer:     ["5-a-side arena", "Local football pitch", "Astroturf cage", "Community sports park", "School field"],
+  basketball: ["Community basketball court", "Outdoor court", "Indoor sports hall", "School gym", "Recreation center"],
+  padel:      ["Padel club", "Indoor padel center", "Sports complex padel", "Tennis & padel club"],
+  tennis:     ["Public tennis courts", "Tennis club", "Leisure center courts", "Park courts"],
+  running:    ["Local park", "Riverside path", "City trail", "Athletics track", "Park run route"],
+  other:      ["Community sports center", "Local park", "Recreation ground", "Sports hall"],
 };
 
 export default function CreateMatchPage() {
   const [error, setError] = useState("");
   const [sport, setSport] = useState("soccer");
+  const locationRef = useRef<HTMLInputElement>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -63,6 +65,7 @@ export default function CreateMatchPage() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Location / Venue *</label>
           <input
+            ref={locationRef}
             name="location"
             required
             list="venue-suggestions"
@@ -74,7 +77,12 @@ export default function CreateMatchPage() {
               <option key={v} value={v} />
             ))}
           </datalist>
-          <p className="text-xs text-gray-400 mt-1">Suggestions shown based on sport — type your own or pick one</p>
+          <VenueFinder
+            sport={sport}
+            onSelect={(v) => {
+              if (locationRef.current) locationRef.current.value = v;
+            }}
+          />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>

@@ -50,6 +50,7 @@ export default function NearMeButton({ currentCity }: { currentCity?: string }) 
   return (
     <div className="flex flex-col items-start gap-1">
       <button
+        type="button"
         onClick={handleNearMe}
         disabled={loading}
         className="flex items-center gap-1.5 border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50"
