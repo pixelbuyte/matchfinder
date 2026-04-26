@@ -13,6 +13,7 @@ export async function saveProfile(formData: FormData) {
   const city = (formData.get("city") as string)?.trim();
   const mainSport = formData.get("mainSport") as string;
   const skillLevel = formData.get("skillLevel") as string;
+  const bio = (formData.get("bio") as string)?.trim() || null;
 
   if (!displayName || !city || !mainSport || !skillLevel)
     return { error: "All fields are required." };
@@ -20,9 +21,9 @@ export async function saveProfile(formData: FormData) {
   const [existing] = await db.select().from(profiles).where(eq(profiles.userId, user.id)).limit(1);
 
   if (existing) {
-    await db.update(profiles).set({ displayName, city, mainSport, skillLevel }).where(eq(profiles.userId, user.id));
+    await db.update(profiles).set({ displayName, city, mainSport, skillLevel, bio }).where(eq(profiles.userId, user.id));
   } else {
-    await db.insert(profiles).values({ userId: user.id, displayName, city, mainSport, skillLevel });
+    await db.insert(profiles).values({ userId: user.id, displayName, city, mainSport, skillLevel, bio });
   }
 
   redirect("/dashboard");

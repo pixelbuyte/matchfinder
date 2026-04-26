@@ -1,9 +1,7 @@
 "use client";
 import { useState } from "react";
 import { saveProfile } from "./actions";
-
-const SPORTS = ["soccer", "basketball", "padel", "tennis", "running", "other"];
-const SKILLS = ["beginner", "intermediate", "advanced"];
+import { SPORTS, SKILLS } from "@/lib/constants";
 
 export default function OnboardingPage() {
   const [error, setError] = useState("");
@@ -40,6 +38,10 @@ export default function OnboardingPage() {
           <select name="skillLevel" required className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
             {SKILLS.map((s) => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
           </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Bio <span className="text-gray-400 font-normal">(optional)</span></label>
+          <textarea name="bio" rows={3} maxLength={300} placeholder="Tell others about yourself..." className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
         </div>
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
           Save Profile

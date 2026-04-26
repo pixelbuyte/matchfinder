@@ -113,3 +113,68 @@ export async function sendJoinConfirmationEmail({
     `,
   });
 }
+
+export async function sendCancelledEmail({
+  participantEmail,
+  participantName,
+  matchTitle,
+  matchDate,
+  creatorName,
+}: {
+  participantEmail: string;
+  participantName: string;
+  matchTitle: string;
+  matchDate: string;
+  creatorName: string;
+}) {
+  if (!canSendEmail()) return;
+  await resend.emails.send({
+    from: FROM,
+    to: participantEmail,
+    subject: `Match cancelled — ${matchTitle}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+        <h2 style="color:#dc2626">Match Cancelled</h2>
+        <p>Hey ${participantName},</p>
+        <p>Unfortunately, <strong>${creatorName}</strong> has cancelled the match <strong>${matchTitle}</strong> scheduled for ${new Date(matchDate).toLocaleString()}.</p>
+        <p>Browse other matches to find a new game!</p>
+        <a href="${process.env.NEXT_PUBLIC_URL}/matches"
+           style="display:inline-block;margin-top:16px;padding:12px 24px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">
+          Browse Matches
+        </a>
+        <p style="margin-top:24px;color:#6b7280;font-size:12px">MatchFinder — Find your next game</p>
+      </div>
+    `,
+  });
+}
+
+export async function sendMatchCompletedEmail({
+  participantEmail,
+  participantName,
+  matchTitle,
+  matchId,
+}: {
+  participantEmail: string;
+  participantName: string;
+  matchTitle: string;
+  matchId: number;
+}) {
+  if (!canSendEmail()) return;
+  await resend.emails.send({
+    from: FROM,
+    to: participantEmail,
+    subject: `Rate your teammates — ${matchTitle}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+        <h2 style="color:#16a34a">Great game! 🏅</h2>
+        <p>Hey ${participantName},</p>
+        <p>The match <strong>${matchTitle}</strong> is now marked as completed. Rate your teammates to help grow the community!</p>
+        <a href="${process.env.NEXT_PUBLIC_URL}/matches/${matchId}"
+           style="display:inline-block;margin-top:16px;padding:12px 24px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">
+          Rate Teammates
+        </a>
+        <p style="margin-top:24px;color:#6b7280;font-size:12px">MatchFinder — Find your next game</p>
+      </div>
+    `,
+  });
+}
