@@ -2,9 +2,7 @@
 import { useState, useRef } from "react";
 import { createMatch } from "../actions";
 import VenueFinder from "@/components/VenueFinder";
-
-const SPORTS = ["soccer", "basketball", "padel", "tennis", "running", "other"];
-const SKILLS = ["beginner", "intermediate", "advanced"];
+import { SPORTS, SKILLS } from "@/lib/constants";
 
 const VENUES: Record<string, string[]> = {
   soccer:     ["5-a-side arena", "Local football pitch", "Astroturf cage", "Community sports park", "School field"],

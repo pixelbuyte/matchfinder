@@ -16,6 +16,7 @@ export const profiles = sqliteTable("profiles", {
   mainSport:   text("main_sport").notNull(),
   skillLevel:  text("skill_level").notNull(),
   bio:         text("bio"),
+  avatarUrl:   text("avatar_url"),
   createdAt:   text("created_at").notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
 });
 
@@ -26,10 +27,12 @@ export const matches = sqliteTable("matches", {
   description: text("description"),
   city:        text("city").notNull(),
   location:    text("location").notNull(),
+  lat:         text("lat"),
+  lng:         text("lng"),
   scheduledAt: text("scheduled_at").notNull(),  // ISO string
   maxPlayers:  integer("max_players").notNull(),
   skillLevel:  text("skill_level").notNull(),
-  status:      text("status").notNull().default("open"),
+  status:      text("status").notNull().default("open"), // open | cancelled | completed
   createdById: integer("created_by_id").notNull().references(() => users.id),
   createdAt:   text("created_at").notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
 });
@@ -49,9 +52,28 @@ export const matchMessages = sqliteTable("match_messages", {
   createdAt: text("created_at").notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
 });
 
+export const matchRatings = sqliteTable("match_ratings", {
+  id:        integer("id").primaryKey({ autoIncrement: true }),
+  matchId:   integer("match_id").notNull().references(() => matches.id, { onDelete: "cascade" }),
+  raterId:   integer("rater_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  rateeId:   integer("ratee_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  stars:     integer("stars").notNull(), // 1-5
+  comment:   text("comment"),
+  createdAt: text("created_at").notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+}, (t) => [unique().on(t.matchId, t.raterId, t.rateeId)]);
+
+export const follows = sqliteTable("follows", {
+  id:          integer("id").primaryKey({ autoIncrement: true }),
+  followerId:  integer("follower_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  followeeId:  integer("followee_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt:   text("created_at").notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+}, (t) => [unique().on(t.followerId, t.followeeId)]);
+
 // TypeScript types inferred from schema
 export type User = typeof users.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
 export type Match = typeof matches.$inferSelect;
 export type MatchParticipant = typeof matchParticipants.$inferSelect;
 export type MatchMessage = typeof matchMessages.$inferSelect;
+export type MatchRating = typeof matchRatings.$inferSelect;
+export type Follow = typeof follows.$inferSelect;

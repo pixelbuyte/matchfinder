@@ -1,13 +1,5 @@
 import Link from "next/link";
-
-const SPORT_COLORS: Record<string, string> = {
-  soccer: "bg-green-100 text-green-800",
-  basketball: "bg-orange-100 text-orange-800",
-  padel: "bg-blue-100 text-blue-800",
-  tennis: "bg-yellow-100 text-yellow-800",
-  running: "bg-purple-100 text-purple-800",
-  other: "bg-gray-100 text-gray-800",
-};
+import { SPORT_COLORS } from "@/lib/constants";
 
 interface MatchCardProps {
   match: {
